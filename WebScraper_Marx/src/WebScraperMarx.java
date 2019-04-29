@@ -3,114 +3,75 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import javax.print.StreamPrintService;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 public class WebScraperMarx {
 
-    private ArrayList<String> titles;
-    private static String startURL = "https://se.indeed.com/";
-    private static String job = "programmering";
-    private static String place = "eskilstuna";
+    private static String startURL = "https://se.indeed.com/";      //Startpage
+    private static String job = "programmering";                    //Searchword for job
+    private static String place = "uppsala";                        //Searchword for place
 
     public WebScraperMarx() {
-        titles = new ArrayList<>();
     }
 
-    //Extract titles from the search
-    public void getAdTitle(String URL) {
-        try {
-            Document HTML = Jsoup.connect(URL).get();
-            Elements titles = HTML.select("a[href^=\"https://www.mkyong.com/page/\"]");
-            //System.out.println(otherLinks);
-
-//            for (Element page : otherLinks) {
-//                if (links.add(URL)) {
-//                    //Remove the comment from the line below if you want to see it running on your editor
-//                    System.out.println(URL);
-//                }
-//                getPageLinks(page.attr("abs:href"));
-//            }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-    }
-
-
-    //Find all URLs that start with "http://www.mkyong.com/page/" and add them to the HashSet
+    //Recursive function that finds all links to ads on a page, and ads them to an ArrayList.
+    //Skips the sponsored ones
+    //If there's a "next" page with more results, calls itself with that next page
     public ArrayList<String> getPageLinks(Document document) throws IOException {
-        //System.out.println("recursion");
-        ArrayList<String> result = new ArrayList<String>(16);
-        Elements links = document.getElementById("resultsCol").getElementsByClass("title");
-        for (Element link : links) {
-            if (!link.siblingElements().hasClass(" sponsoredGray ")) {
-                result.add(link.getElementsByClass("jobtitle turnstileLink ").get(0).attr("abs:href"));
-                System.out.println(link.text());
+        ArrayList<String> result = new ArrayList<String>(16); //16 seems to bee maximum size of search results per site
+        //Extract the HTML-elements within the ID "resultsCol" and with classname "title"
+        Elements titleLink = document.getElementById("resultsCol").getElementsByClass("title");
+        for (Element link : titleLink) {
+            Elements siblings = link.siblingElements();
+            for (Element sibling : siblings) {
+                //For each links siblings, extract the sibling with classname ""jobsearch-SerpJobCard-footer", and see if it contains the class " sponsoredGray ".
+                if (sibling.hasClass("jobsearch-SerpJobCard-footer")) {
+                    if (sibling.getElementsByClass(" sponsoredGray ").size() == 0) {
+                        //If it's not a sponsored link, add it's URL to the ArrayList
+                        result.add(link.getElementsByClass("jobtitle turnstileLink ").attr("abs:href"));
+                        System.out.println(link.text());
+                    }
+                }
             }
         }
+        //getNext returns a HTML-document with the next page if there is one, otherwise null.
         Document next = getNext(document);
         if (next == null) {
             return result;
         }
+        //If there is a next page, call getPageLinks recursively with the next page.
         result.addAll(getPageLinks(next));
         return result;
-
-//getElementsByClass("jobsearch-SerpJobCard unifiedRow row result clickcard");
-
-
-//        Elements links = document.getElementById("resultsCol").getElementsByClass("jobtitle turnstileLink ");
-//        for (Element link : links) {
-//            result.add(link.attr("abs:href"));
-//            System.out.println(link.text());
-//        }
-//        Document next = getNext(document);
-//        if (next == null) {
-//            return result;
-//        }
-//        result.addAll(getPageLinks(next));
-//        return result;
     }
 
+    //If there's a "Nästa "-link, returns the HTML document for that page, otherwise null.
     private Document getNext(Document document) throws IOException {
-        Elements links = document.getElementById("resultsCol").getElementsByClass("pagination");
-        if (links.size() == 0) return null;
+        //Extract the elements from ID "resultCol" with class "pagination".
+        Elements nextLinks = document.getElementById("resultsCol").getElementsByClass("pagination");
+        //If there isn't any, return null.
+        if (nextLinks.size() == 0) return null;
         else {
-            Elements newLinks = links.get(0).getElementsByTag("a");
-            Element nextLink = newLinks.get(newLinks.size() - 1);
+            //Otherwise, take the URL from the last link ("Nästa »"), and return the HTML document for that page
+            Elements nextLinks2 = nextLinks.get(0).getElementsByTag("a");
+            Element nextLink = nextLinks2.get(nextLinks2.size() - 1);
             if (nextLink.text().equals("Nästa »")) {
                 Document newDoc = Jsoup.connect(nextLink.attr("abs:href")).get();
                 return newDoc;
             }
         }
         return null;
-
-//        for (Element link : links) {
-//            //System.out.println("1");
-//            System.out.println(link.childNodeSize());
-//            Elements childLinks = link.children();
-//            for (Element finLink : childLinks) {
-//                System.out.println(finLink);
-//                if (finLink.text().equals("Nästa ")) {
-//                    Document newDoc = Jsoup.connect(finLink.attr("abs:href")).get();
-//                    System.out.println(finLink.attr("abs:href"));
-//                    return newDoc;
-//                }
-//
-//            }
-//        }
-//        System.out.println("getnext null");
     }
 
+
     public static void main(String[] args) throws IOException {
-        WebScraperMarx bwc = new WebScraperMarx();
+        WebScraperMarx wsm = new WebScraperMarx();
+        //Extract the HTML-document from the first search-page
         Document document = Jsoup.connect(startURL + job + "-jobb-i-" + place).get();
-        ArrayList<String> resultLinks = bwc.getPageLinks(document);
+        ArrayList<String> resultLinks = wsm.getPageLinks(document);
         for (int i = 0; i < resultLinks.size(); i++) {
             System.out.println(resultLinks.get(i));
         }
-        System.out.println("size på resultLinks: " +resultLinks.size());
+        System.out.println("size på resultLinks: " + resultLinks.size());
     }
 }
