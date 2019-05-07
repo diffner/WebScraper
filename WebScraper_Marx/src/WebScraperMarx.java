@@ -8,16 +8,22 @@ import java.util.ArrayList;
 
 public class WebScraperMarx {
 
-    private static String startURL = "https://se.indeed.com/";      //Startpage
-    private static String job = "programmering";                    //Searchword for job
-    private static String place = "uppsala";                        //Searchword for place
+    private static final String startURL = "https://se.indeed.com/";      //Startpage
+    private static String job = "programmering";                          //Searchword for job
+    private static String place = "uppsala";                              //Searchword for place
 
     public WebScraperMarx() {
     }
 
-    //Recursive function that finds all links to ads on a page, and ads them to an ArrayList.
-    //Skips the sponsored ones
-    //If there's a "next" page with more results, calls itself with that next page
+    /**
+     * A recursive function that will scan and find all the links, of job ads, on the search results page. The function will call
+     * itself until it scans all the result pages.
+     * The function will skip the sponsored ads, because they get repeated.
+     *
+     * @param document the search result page that needs to be scanned.
+     * @return and ArrayList of strings that contains all the found links.
+     * @throws IOException
+     */
     public ArrayList<String> getPageLinks(Document document) throws IOException {
         ArrayList<String> result = new ArrayList<String>(16); //16 seems to bee maximum size of search results per site
         //Extract the HTML-elements within the ID "resultsCol" and with classname "title"
@@ -45,7 +51,14 @@ public class WebScraperMarx {
         return result;
     }
 
-    //If there's a "Nästa "-link, returns the HTML document for that page, otherwise null.
+
+    /**
+     * The function will find the next page, if it exists.
+     *
+     * @param document the page in which the function will search for a next link
+     * @return the next page if found, otherwise null.
+     * @throws IOException
+     */
     private Document getNext(Document document) throws IOException {
         //Extract the elements from ID "resultCol" with class "pagination".
         Elements nextLinks = document.getElementById("resultsCol").getElementsByClass("pagination");
