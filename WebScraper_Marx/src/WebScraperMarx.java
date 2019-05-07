@@ -24,8 +24,8 @@ public class WebScraperMarx {
      * @return and ArrayList of strings that contains all the found links.
      * @throws IOException
      */
-    public ArrayList<String> getPageLinks(Document document) throws IOException {
-        ArrayList<String> result = new ArrayList<String>(16); //16 seems to bee maximum size of search results per site
+    public ArrayList<RowAdData> getPageLinks(Document document) throws IOException {
+        ArrayList<RowAdData> result = new ArrayList<RowAdData>(16); //16 seems to bee maximum size of search results per site
         //Extract the HTML-elements within the ID "resultsCol" and with classname "title"
         Elements titleLink = document.getElementById("resultsCol").getElementsByClass("title");
         for (Element link : titleLink) {
@@ -35,8 +35,9 @@ public class WebScraperMarx {
                 if (sibling.hasClass("jobsearch-SerpJobCard-footer")) {
                     if (sibling.getElementsByClass(" sponsoredGray ").size() == 0) {
                         //If it's not a sponsored link, add it's URL to the ArrayList
-                        result.add(link.getElementsByClass("jobtitle turnstileLink ").attr("abs:href"));
-                        System.out.println(link.text());
+                        String adURL = link.getElementsByClass("jobtitle turnstileLink ").attr("abs:href");
+                        result.add(getRawAdData(adURL, link.text()));
+                        //System.out.println(link.text()); //Prints the ad-title
                     }
                 }
             }
@@ -48,6 +49,27 @@ public class WebScraperMarx {
         }
         //If there is a next page, call getPageLinks recursively with the next page.
         result.addAll(getPageLinks(next));
+        return result;
+    }
+
+    /**
+     * Open the given ad and store it's title and description in a RowAdData object.
+     * @param adURL the URL to the ad
+     * @param title the ad-title
+     * @return  the RowAdData object
+     * @throws IOException
+     */
+    private RowAdData getRawAdData(String adURL, String title) throws IOException {
+        RowAdData result = new RowAdData();
+        result.setTitle(title);
+        Document adHTML = Jsoup.connect(adURL).get();
+        //The description is stored under several p-tags.
+        Elements titleLink = adHTML.getElementById("jobDescriptionText").getElementsByTag("p");
+        StringBuilder sb = new StringBuilder();
+        for (Element text : titleLink) {
+            sb.append(text.text());
+        }
+        result.setDiscription(sb.toString());
         return result;
     }
 
@@ -81,9 +103,9 @@ public class WebScraperMarx {
         WebScraperMarx wsm = new WebScraperMarx();
         //Extract the HTML-document from the first search-page
         Document document = Jsoup.connect(startURL + job + "-jobb-i-" + place).get();
-        ArrayList<String> resultLinks = wsm.getPageLinks(document);
+        ArrayList<RowAdData> resultLinks = wsm.getPageLinks(document);
         for (int i = 0; i < resultLinks.size(); i++) {
-            System.out.println(resultLinks.get(i));
+            System.out.println(resultLinks.get(i).getTitle());
         }
         System.out.println("size på resultLinks: " + resultLinks.size());
     }
