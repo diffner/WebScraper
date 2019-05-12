@@ -36,7 +36,8 @@ public class WebScraperMarx {
                     if (sibling.getElementsByClass(" sponsoredGray ").size() == 0) {
                         //If it's not a sponsored link, add it's URL to the ArrayList
                         String adURL = link.getElementsByClass("jobtitle turnstileLink ").attr("abs:href");
-                        result.add(getRawAdData(adURL, link.text()));
+                        RowAdData ad = getRawAdData(adURL, link.text());
+                        if (ad != null) result.add(ad);
                         //System.out.println(link.text()); //Prints the ad-title
                     }
                 }
@@ -64,13 +65,19 @@ public class WebScraperMarx {
         result.setTitle(title);
         Document adHTML = Jsoup.connect(adURL).get();
         //The description is stored under several p-tags.
-        Elements titleLink = adHTML.getElementById("jobDescriptionText").getElementsByTag("p");
-        StringBuilder sb = new StringBuilder();
-        for (Element text : titleLink) {
-            sb.append(text.text());
+        //One link (or at least a very small amount of links) seems to give a nullPointerException. Solved with this try-block
+        try {
+            Elements titleLink = adHTML.getElementById("jobDescriptionText").getElementsByTag("p");
+            StringBuilder sb = new StringBuilder();
+            for (Element text : titleLink) {
+                sb.append(text.text());
+            }
+            result.setDiscription(sb.toString());
+            return result;
         }
-        result.setDiscription(sb.toString());
-        return result;
+        catch (NullPointerException e){
+            return null;
+        }
     }
 
 
