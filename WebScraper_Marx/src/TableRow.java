@@ -1,6 +1,6 @@
 import java.util.HashMap;
 
-public class TableRow implements Comparable<TableRow> {
+public class TableRow {
     public Job job;
     public int jobCount = 1;
     public HashMap<Asset, Integer> assets = new HashMap<>();
@@ -27,7 +27,18 @@ public class TableRow implements Comparable<TableRow> {
     }
 
     @Override
-    public int compareTo(TableRow that) {
-        return this.hashCode()-that.hashCode();
+    public boolean equals(Object that){
+
+        if(that == null) return false;
+
+        if (!TableRow.class.isAssignableFrom(that.getClass())) {
+            return false;
+        }
+
+        final TableRow other = (TableRow) that;
+
+        if(this.hashCode() == other.hashCode())
+            return true;
+        else return false;
     }
 }

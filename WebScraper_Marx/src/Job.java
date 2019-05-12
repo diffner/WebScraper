@@ -1,6 +1,6 @@
 import java.util.Arrays;
 
-public class Job implements Comparable<Job> {
+public class Job {
     public String text;
     public Job right;
 
@@ -26,7 +26,18 @@ public class Job implements Comparable<Job> {
     }
 
     @Override
-    public int compareTo(Job that) {
-        return this.hashCode()-that.hashCode();
+    public boolean equals(Object that){
+
+        if(that == null) return false;
+
+        if (!TableRow.class.isAssignableFrom(that.getClass())) {
+            return false;
+        }
+
+        final TableRow other = (TableRow) that;
+
+        if(this.hashCode() == other.hashCode())
+            return true;
+        else return false;
     }
 }

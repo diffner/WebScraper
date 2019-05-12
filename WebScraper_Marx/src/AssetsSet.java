@@ -7,7 +7,7 @@ public class AssetsSet {
     public static void addAsset(String asset, Job job) {
         Asset tempAsset = new Asset(asset, job);
         if (assetsSet.containsKey(tempAsset)){
-            assetsSet.get(asset).addJob(job);
+            assetsSet.get(tempAsset).addJob(job);
         }else assetsSet.put(tempAsset,tempAsset);
     }
 }

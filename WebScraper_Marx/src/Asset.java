@@ -1,6 +1,6 @@
 import java.util.HashMap;
 
-public class Asset implements Comparable<Asset> {
+public class Asset {
     public String type;
     public HashMap<Job, Integer> jobs = new HashMap<>();
 
@@ -16,7 +16,7 @@ public class Asset implements Comparable<Asset> {
     public void addJob(Job job) {
         if (jobs.containsKey(job))
             jobs.replace(job,jobs.get(job)+1);
-
+        else jobs.put(job,1);
     }
 
     @Override
@@ -25,7 +25,18 @@ public class Asset implements Comparable<Asset> {
     }
 
     @Override
-    public int compareTo(Asset that) {
-        return this.hashCode()-that.hashCode();
+    public boolean equals(Object that){
+
+        if(that == null) return false;
+
+        if (!Asset.class.isAssignableFrom(that.getClass())) {
+            return false;
+        }
+
+        final Asset other = (Asset) that;
+
+        if(this.hashCode() == other.hashCode())
+            return true;
+        else return false;
     }
 }
