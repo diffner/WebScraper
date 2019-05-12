@@ -1,3 +1,4 @@
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -24,8 +25,8 @@ public class WebScraperMarx {
      * @return and ArrayList of strings that contains all the found links.
      * @throws IOException
      */
-    public ArrayList<RowAdData> getPageLinks(Document document) throws IOException {
-        ArrayList<RowAdData> result = new ArrayList<RowAdData>(16); //16 seems to bee maximum size of search results per site
+    public static ArrayList<String> getPageLinks(Document document) throws IOException {
+        ArrayList<String> result = new ArrayList<String>(16); //16 seems to bee maximum size of search results per site
         //Extract the HTML-elements within the ID "resultsCol" and with classname "title"
         Elements titleLink = document.getElementById("resultsCol").getElementsByClass("title");
         for (Element link : titleLink) {
@@ -36,8 +37,9 @@ public class WebScraperMarx {
                     if (sibling.getElementsByClass(" sponsoredGray ").size() == 0) {
                         //If it's not a sponsored link, add it's URL to the ArrayList
                         String adURL = link.getElementsByClass("jobtitle turnstileLink ").attr("abs:href");
-                        RowAdData ad = getRawAdData(adURL, link.text());
-                        if (ad != null) result.add(ad);
+                        result.add(adURL);
+                        //RawAdData ad = getRawAdData(adURL, link.text());
+                        //if (ad != null) result.add(ad);
                         //System.out.println(link.text()); //Prints the ad-title
                     }
                 }
@@ -53,31 +55,36 @@ public class WebScraperMarx {
         return result;
     }
 
+
     /**
-     * Open the given ad and store it's title and description in a RowAdData object.
-     * @param adURL the URL to the ad
-     * @param title the ad-title
-     * @return  the RowAdData object
+     * Open the given ad and store it's title and description in a RawAdData object.
+     *
+     * @param links
+     * @return
      * @throws IOException
      */
-    private RowAdData getRawAdData(String adURL, String title) throws IOException {
-        RowAdData result = new RowAdData();
-        result.setTitle(title);
-        Document adHTML = Jsoup.connect(adURL).get();
-        //The description is stored under several p-tags.
-        //One link (or at least a very small amount of links) seems to give a nullPointerException. Solved with this try-block
-        try {
-            Elements titleLink = adHTML.getElementById("jobDescriptionText").getElementsByTag("p");
-            StringBuilder sb = new StringBuilder();
-            for (Element text : titleLink) {
-                sb.append(text.text());
+    private static ArrayList<RawAdData> getRawAdData(ArrayList<String> links) throws IOException {
+        ArrayList<RawAdData> result = new ArrayList<RawAdData>();
+        for (String link : links) {
+            RawAdData temp = new RawAdData();
+            Document adHTML = Jsoup.connect(link).get();
+
+            temp.setTitle(adHTML.getElementsByClass("icl-u-xs-mb--xs icl-u-xs-mt--none jobsearch-JobInfoHeader-title").get(0).text());
+
+
+            //The description is stored under several p-tags.
+            //One link (or at least a very small amount of links) seems to give a nullPointerException. Solved with this try-block
+            Elements linkDescription = adHTML.getElementById("jobDescriptionText").getElementsByTag("p");
+            if (linkDescription != null) {
+                StringBuilder sb = new StringBuilder();
+                for (Element text : linkDescription) {
+                    sb.append(text.text());
+                }
+                temp.setDiscription(sb.toString());
+                result.add(temp);
             }
-            result.setDiscription(sb.toString());
-            return result;
         }
-        catch (NullPointerException e){
-            return null;
-        }
+        return result;
     }
 
 
@@ -88,7 +95,7 @@ public class WebScraperMarx {
      * @return the next page if found, otherwise null.
      * @throws IOException
      */
-    private Document getNext(Document document) throws IOException {
+    private static Document getNext(Document document) throws IOException {
         //Extract the elements from ID "resultCol" with class "pagination".
         Elements nextLinks = document.getElementById("resultsCol").getElementsByClass("pagination");
         //If there isn't any, return null.
@@ -107,13 +114,13 @@ public class WebScraperMarx {
 
 
     public static void main(String[] args) throws IOException {
-        WebScraperMarx wsm = new WebScraperMarx();
         //Extract the HTML-document from the first search-page
         Document document = Jsoup.connect(startURL + job + "-jobb-i-" + place).get();
-        ArrayList<RowAdData> resultLinks = wsm.getPageLinks(document);
-        for (int i = 0; i < resultLinks.size(); i++) {
-            System.out.println(resultLinks.get(i).getTitle());
+        ArrayList<String> links = getPageLinks(document);
+        ArrayList<RawAdData> rawData = getRawAdData(links);
+        for (int i = 0; i < rawData.size(); i++) {
+            System.out.println(rawData.get(i).getTitle());
         }
-        System.out.println("size på resultLinks: " + resultLinks.size());
+        System.out.println("size på resultLinks: " + rawData.size());
     }
 }
