@@ -38,9 +38,6 @@ public class WebScraperMarx {
                         //If it's not a sponsored link, add it's URL to the ArrayList
                         String adURL = link.getElementsByClass("jobtitle turnstileLink ").attr("abs:href");
                         result.add(adURL);
-                        //RawAdData ad = getRawAdData(adURL, link.text());
-                        //if (ad != null) result.add(ad);
-                        //System.out.println(link.text()); //Prints the ad-title
                     }
                 }
             }
