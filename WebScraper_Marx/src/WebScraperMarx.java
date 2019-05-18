@@ -56,28 +56,23 @@ public class WebScraperMarx {
     /**
      * Open the given ad and store it's title and description in a RawAdData object.
      *
-     * @param links
-     * @return
+     * @param links     Arraylist with links to the ads
+     * @return Arraylist of objects with processed data
      * @throws IOException
      */
     private static ArrayList<RawAdData> getRawAdData(ArrayList<String> links) throws IOException {
         ArrayList<RawAdData> result = new ArrayList<RawAdData>();
         for (String link : links) {
             RawAdData temp = new RawAdData();
+            //Fetch the HTML-document from the link
             Document adHTML = Jsoup.connect(link).get();
-
-            temp.setTitle(adHTML.getElementsByClass("icl-u-xs-mb--xs icl-u-xs-mt--none jobsearch-JobInfoHeader-title").get(0).text());
-
-
-            //The description is stored under several p-tags.
-            //One link (or at least a very small amount of links) seems to give a nullPointerException. Solved with this try-block
-            Elements linkDescription = adHTML.getElementById("jobDescriptionText").getElementsByTag("p");
+            String title = adHTML.getElementsByClass("icl-u-xs-mb--xs icl-u-xs-mt--none jobsearch-JobInfoHeader-title").get(0).text().toLowerCase();    //Get the title
+            temp.setTitle(title);
+            //The description is stored under the ID jobDescriptiontext.
+            //One link (or at least a very small amount of links) seems to give a nullPointerException. Solved with the if-statement
+            Element linkDescription = adHTML.getElementById("jobDescriptionText");
             if (linkDescription != null) {
-                StringBuilder sb = new StringBuilder();
-                for (Element text : linkDescription) {
-                    sb.append(text.text());
-                }
-                temp.setDiscription(sb.toString());
+                temp.setDiscription(linkDescription.text().toLowerCase());
                 result.add(temp);
             }
         }
@@ -115,9 +110,15 @@ public class WebScraperMarx {
         Document document = Jsoup.connect(startURL + job + "-jobb-i-" + place).get();
         ArrayList<String> links = getPageLinks(document);
         ArrayList<RawAdData> rawData = getRawAdData(links);
-        for (int i = 0; i < rawData.size(); i++) {
-            System.out.println(rawData.get(i).getTitle());
-        }
+//        for (int i = 0; i < rawData.size(); i++) {
+//            System.out.println(rawData.get(i).getTitle());
+//        }
         System.out.println("size på resultLinks: " + rawData.size());
+        ArrayList<TokenizedAdData> tokenizedData = Lexer.parse(rawData);
+        for (int i = 0; i < tokenizedData.size(); i++) {
+            System.out.println(tokenizedData.get(i).getAssets());
+        }
+//        System.out.println("size på resultLinks: " + rawData.size());
+
     }
 }
