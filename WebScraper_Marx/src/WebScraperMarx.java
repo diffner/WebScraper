@@ -112,7 +112,8 @@ public class WebScraperMarx {
         ArrayList<String> links = getPageLinks(document);
         ArrayList<RawAdData> rawData = getRawAdData(links);
 
-        //Skriver ut länkar
+
+        //printing links
         for (int i = 0; i < rawData.size(); i++) {
             System.out.println(rawData.get(i).getTitle());
         }
@@ -135,7 +136,6 @@ public class WebScraperMarx {
             table.addJob(array1.toArray(new String[array1.size()]), array2.toArray(new String[array2.size()]) );
         }
 */
-
 
     }
 }
