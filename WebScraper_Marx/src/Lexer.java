@@ -42,9 +42,11 @@ public class Lexer {
                 }
             }
             //Set tokens to TokenizedAdData-object
-            tokenizedAdData.setJob(titleTokens);
-            tokenizedAdData.setAssets(assetTokens);
-            result.add(tokenizedAdData);
+            if (titleTokens.size() > 0 && assetTokens.size() > 0){
+                tokenizedAdData.setJob(titleTokens);
+                tokenizedAdData.setAssets(assetTokens);
+                result.add(tokenizedAdData);
+            }
         }
         return result;
     }
