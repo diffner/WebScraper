@@ -6,12 +6,13 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class WebScraperMarx {
 
     private static final String startURL = "https://se.indeed.com/";      //Startpage
     private static String job = "programmering";                          //Searchword for job
-    private static String place = "uppsala";                              //Searchword for place
+    private static String place = "alingsås";                              //Searchword for place
 
     public WebScraperMarx() {
     }
@@ -110,15 +111,31 @@ public class WebScraperMarx {
         Document document = Jsoup.connect(startURL + job + "-jobb-i-" + place).get();
         ArrayList<String> links = getPageLinks(document);
         ArrayList<RawAdData> rawData = getRawAdData(links);
-//        for (int i = 0; i < rawData.size(); i++) {
-//            System.out.println(rawData.get(i).getTitle());
-//        }
-        System.out.println("size på resultLinks: " + rawData.size());
+
+
+        //printing links
+        for (int i = 0; i < rawData.size(); i++) {
+            System.out.println(rawData.get(i).getTitle());
+        }
+
+        //Skriver ut assets/jobtitle
+//        System.out.println("size på resultLinks: " + rawData.size());
+        System.out.println("\n \n De matchade annonserna \n");
         ArrayList<TokenizedAdData> tokenizedData = Lexer.parse(rawData);
         for (int i = 0; i < tokenizedData.size(); i++) {
+            System.out.print(tokenizedData.get(i).getJob());
             System.out.println(tokenizedData.get(i).getAssets());
         }
-//        System.out.println("size på resultLinks: " + rawData.size());
+
+        //Send the Arraylist of processed ads to the table
+/*
+        Table table = new Table();
+        for (TokenizedAdData ad: tokenizedData) {
+            ArrayList<String> array1 = ad.getJob();
+            ArrayList<String> array2 = ad.getAssets();
+            table.addJob(array1.toArray(new String[array1.size()]), array2.toArray(new String[array2.size()]) );
+        }
+*/
 
     }
 }
