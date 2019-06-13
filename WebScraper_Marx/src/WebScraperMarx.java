@@ -7,6 +7,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class WebScraperMarx {
 
@@ -57,7 +58,7 @@ public class WebScraperMarx {
     /**
      * Open the given ad and store it's title and description in a RawAdData object.
      *
-     * @param links     Arraylist with links to the ads
+     * @param links Arraylist with links to the ads
      * @return Arraylist of objects with processed data
      * @throws IOException
      */
@@ -105,6 +106,31 @@ public class WebScraperMarx {
         return null;
     }
 
+    public static HashMap<String[], DataStructureElement> generateJobHashmap(TokenizedAdData t, HashMap<String[], DataStructureElement> jobHashMap) {
+        System.out.println(Arrays.toString(t.getJob()) + " = " + t.getJob().hashCode());
+        if (jobHashMap.containsKey(t.getJob())) {
+            jobHashMap.get(t.getJob()).addAssets(t.getAssets());
+        } else {
+            jobHashMap.put(t.getJob(), new DataStructureElement(t.getJob(), t.getAssets()));
+        }
+        return jobHashMap;
+    }
+
+
+    public static HashMap<String[], DataStructureElement> generateAssetHashmap(TokenizedAdData t, HashMap<String[], DataStructureElement> assetHashMap) {
+        for (String asset : t.getAssets()) {
+            String[] assetArray = new String[]{asset};
+            System.out.println(Arrays.toString(assetArray) + " = " + assetArray.hashCode());
+            String jobTitle = Arrays.toString(t.getJob());
+            if (assetHashMap.containsKey(asset)) {
+                assetHashMap.get(asset).addJob(jobTitle);
+            } else {
+                assetHashMap.put(assetArray, new DataStructureElement(assetArray, jobTitle));
+            }
+        }
+        return assetHashMap;
+    }
+
 
     public static void main(String[] args) throws IOException {
         //Extract the HTML-document from the first search-page
@@ -118,13 +144,18 @@ public class WebScraperMarx {
             System.out.println(rawData.get(i).getTitle());
         }
 
-        //Skriver ut assets/jobtitle
+        //Skriver ut asset eller jobtitle
 //        System.out.println("size på resultLinks: " + rawData.size());
         System.out.println("\n \n De matchade annonserna \n");
         ArrayList<TokenizedAdData> tokenizedData = Lexer.parse(rawData);
-        for (int i = 0; i < tokenizedData.size(); i++) {
-            System.out.print(tokenizedData.get(i).getJob());
-            System.out.println(tokenizedData.get(i).getAssets());
+        HashMap<String[], DataStructureElement> jobHashMap = new HashMap<>();
+        HashMap<String[], DataStructureElement> assetHashMap = new HashMap<>();
+        for (TokenizedAdData t : tokenizedData) {
+            jobHashMap = generateJobHashmap(t, jobHashMap);
+            assetHashMap = generateAssetHashmap(t, jobHashMap);
+
+            //System.out.print(tokenizedData.get(i).getJob());
+            //System.out.println(tokenizedData.get(i).getAssets());
         }
 
         //Send the Arraylist of processed ads to the table

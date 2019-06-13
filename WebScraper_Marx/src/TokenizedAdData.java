@@ -1,22 +1,22 @@
 import java.util.ArrayList;
 
 public class TokenizedAdData {
-    private ArrayList<String> TokenizedJob;
-    private ArrayList<String> TokenizedAssets;
+    private String[] TokenizedJob;
+    private String[] TokenizedAssets;
 
-    public ArrayList<String> getJob() {
+    public String[] getJob() {
         return TokenizedJob;
     }
 
-    public void setJob(ArrayList<String> title) {
+    public void setJob(String[] title) {
         this.TokenizedJob = title;
     }
 
-    public ArrayList<String> getAssets() {
+    public String[] getAssets() {
         return TokenizedAssets;
     }
 
-    public void setAssets(ArrayList<String> description) {
+    public void setAssets(String[] description) {
         this.TokenizedAssets = description;
     }
 }

@@ -44,8 +44,8 @@ public class Lexer {
             //Set tokens to TokenizedAdData-object
           
             if (titleTokens.size() > 0 && assetTokens.size() > 0){
-                tokenizedAdData.setJob(titleTokens);
-                tokenizedAdData.setAssets(assetTokens);
+                tokenizedAdData.setJob(titleTokens.toArray(new String[titleTokens.size()]));
+                tokenizedAdData.setAssets(assetTokens.toArray(new String[assetTokens.size()]));
                 result.add(tokenizedAdData);
             }
 
