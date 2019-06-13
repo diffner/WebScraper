@@ -1,22 +1,46 @@
-import java.util.ArrayList;
-
 public class TokenizedAdData {
-    private String[] TokenizedJob;
-    private String[] TokenizedAssets;
+    private String[] tokenizedJob;
+    private String[] tokenizedAssets;
+
+    public TokenizedAdData(){
+        tokenizedJob = null;
+        tokenizedAssets = null;
+    }
+
+    public TokenizedAdData(String[] jobTokens, String[] assetTokens) {
+        tokenizedJob = jobTokens;
+        tokenizedAssets = assetTokens;
+    }
 
     public String[] getJob() {
-        return TokenizedJob;
+        return tokenizedJob;
     }
 
     public void setJob(String[] title) {
-        this.TokenizedJob = title;
+        this.tokenizedJob = title;
     }
 
     public String[] getAssets() {
-        return TokenizedAssets;
+        return tokenizedAssets;
     }
 
     public void setAssets(String[] description) {
-        this.TokenizedAssets = description;
+        this.tokenizedAssets = description;
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder builder = new StringBuilder();
+        builder.append("Title: ");
+        for (String s : tokenizedJob){
+            builder.append(s + " ");
+        }
+        builder.append("\n");
+        builder.append("Assets: ");
+        for(String s : tokenizedAssets){
+            builder.append(s + " ");
+        }
+        builder.append("\n\n");
+        return builder.toString();
     }
 }

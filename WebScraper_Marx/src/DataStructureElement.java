@@ -45,16 +45,15 @@ public class DataStructureElement {
         for( String s : this.title){
             result += s + " ";
         }
-        result = result.substring(0, result.length()-2);
+        result = result.substring(0, result.length()-1);
         return result;
     }
 
     @Override
     public int hashCode() {
-        int accumulator = 0;
+        int accumulator = 17;
         for(String s : this.title){
-            accumulator += s.hashCode();
-            accumulator = accumulator % 10000019;
+            accumulator = accumulator * 486187739 + s.hashCode();
         }
         return accumulator;
     }

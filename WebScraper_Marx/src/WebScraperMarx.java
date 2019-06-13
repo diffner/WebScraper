@@ -8,12 +8,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 public class WebScraperMarx {
 
     private static final String startURL = "https://se.indeed.com/";      //Startpage
     private static String job = "programmering";                          //Searchword for job
-    private static String place = "alingsås";                              //Searchword for place
+    private static String place = "uppsala";                              //Searchword for place
 
     public WebScraperMarx() {
     }
@@ -106,26 +107,27 @@ public class WebScraperMarx {
         return null;
     }
 
-    public static HashMap<String[], DataStructureElement> generateJobHashmap(TokenizedAdData t, HashMap<String[], DataStructureElement> jobHashMap) {
-        System.out.println(Arrays.toString(t.getJob()) + " = " + t.getJob().hashCode());
-        if (jobHashMap.containsKey(t.getJob())) {
-            jobHashMap.get(t.getJob()).addAssets(t.getAssets());
+    public static HashMap<DataStructureElement, DataStructureElement> generateJobHashmap(TokenizedAdData t, HashMap<DataStructureElement, DataStructureElement> jobHashMap) {
+        DataStructureElement element = new DataStructureElement(t.getJob(), t.getAssets());
+
+        if (jobHashMap.containsKey(element)) {
+            jobHashMap.get(element).addAssets(t.getAssets());
         } else {
-            jobHashMap.put(t.getJob(), new DataStructureElement(t.getJob(), t.getAssets()));
+            jobHashMap.put(element, element);
         }
         return jobHashMap;
     }
 
 
-    public static HashMap<String[], DataStructureElement> generateAssetHashmap(TokenizedAdData t, HashMap<String[], DataStructureElement> assetHashMap) {
+    public static HashMap<DataStructureElement, DataStructureElement> generateAssetHashmap(TokenizedAdData t, HashMap<DataStructureElement, DataStructureElement> assetHashMap) {
         for (String asset : t.getAssets()) {
             String[] assetArray = new String[]{asset};
-            System.out.println(Arrays.toString(assetArray) + " = " + assetArray.hashCode());
             String jobTitle = Arrays.toString(t.getJob());
-            if (assetHashMap.containsKey(asset)) {
-                assetHashMap.get(asset).addJob(jobTitle);
+            DataStructureElement element = new DataStructureElement(assetArray, jobTitle);
+            if (assetHashMap.containsKey(element)) {
+                assetHashMap.get(element).addJob(jobTitle);
             } else {
-                assetHashMap.put(assetArray, new DataStructureElement(assetArray, jobTitle));
+                assetHashMap.put(element, element);
             }
         }
         return assetHashMap;
@@ -148,25 +150,32 @@ public class WebScraperMarx {
 //        System.out.println("size på resultLinks: " + rawData.size());
         System.out.println("\n \n De matchade annonserna \n");
         ArrayList<TokenizedAdData> tokenizedData = Lexer.parse(rawData);
-        HashMap<String[], DataStructureElement> jobHashMap = new HashMap<>();
-        HashMap<String[], DataStructureElement> assetHashMap = new HashMap<>();
+        HashMap<DataStructureElement, DataStructureElement> jobHashMap = new HashMap<>();
+        HashMap<DataStructureElement, DataStructureElement> assetHashMap = new HashMap<>();
         for (TokenizedAdData t : tokenizedData) {
+            System.out.print(t);
+            System.out.println("------------------------");
+
             jobHashMap = generateJobHashmap(t, jobHashMap);
-            assetHashMap = generateAssetHashmap(t, jobHashMap);
-
-            //System.out.print(tokenizedData.get(i).getJob());
-            //System.out.println(tokenizedData.get(i).getAssets());
+            assetHashMap = generateAssetHashmap(t, assetHashMap);
         }
+        printJobHashmap(jobHashMap);
+        printJobHashmap(assetHashMap);
+    }
 
-        //Send the Arraylist of processed ads to the table
-/*
-        Table table = new Table();
-        for (TokenizedAdData ad: tokenizedData) {
-            ArrayList<String> array1 = ad.getJob();
-            ArrayList<String> array2 = ad.getAssets();
-            table.addJob(array1.toArray(new String[array1.size()]), array2.toArray(new String[array2.size()]) );
+//    private static void printAssetHashmap(HashMap<DataStructureElement, DataStructureElement> assetHashMap) {
+//        for (Map.Entry<DataStructureElement,DataStructureElement> d : assetHashMap.entrySet()){
+//            System.out.println(d.getValue());
+//            for (Map.Entry<String,Integer> r :d.getValue().relations;)
+//        }
+//    }
+
+    private static void printJobHashmap(HashMap<DataStructureElement, DataStructureElement> jobHashMap) {
+        for (Map.Entry<DataStructureElement, DataStructureElement> d : jobHashMap.entrySet()) {
+            System.out.println(d.getValue() + ":");
+            for (Map.Entry<String, Integer> r : d.getValue().relations.entrySet()) {
+                System.out.println("    " + r.getKey() + " - " + r.getValue());
+            }
         }
-*/
-
     }
 }
