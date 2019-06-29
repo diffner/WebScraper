@@ -12,7 +12,7 @@ public class WebScraperMarx {
 
     private static final String startURL = "https://se.indeed.com/";      //Startpage
     private static String job = "programmering";                          //Searchword for job
-    private static String place = "alingsås";                              //Searchword for place
+    private static String place = "uppsala";                              //Searchword for place
 
     public WebScraperMarx() {
     }
