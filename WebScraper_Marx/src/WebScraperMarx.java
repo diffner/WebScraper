@@ -12,7 +12,7 @@ public class WebScraperMarx {
 
     private static final String startURL = "https://se.indeed.com/";      //Startpage
     private static String job = "programmering";                          //Searchword for job
-    private static String place = "alingsås";                              //Searchword for place
+    private static String place = "uppsala";                              //Searchword for place
 
     public WebScraperMarx() {
     }
@@ -72,6 +72,7 @@ public class WebScraperMarx {
             //The description is stored under the ID jobDescriptiontext.
             //One link (or at least a very small amount of links) seems to give a nullPointerException. Solved with the if-statement
             Element linkDescription = adHTML.getElementById("jobDescriptionText");
+            //To print the stored string from jobDescription
             if (linkDescription != null) {
                 temp.setDiscription(linkDescription.text().toLowerCase());
                 result.add(temp);
@@ -118,6 +119,7 @@ public class WebScraperMarx {
             System.out.println(rawData.get(i).getTitle());
         }
 
+        System.out.println("Done with gathering info, parsing left: ");
         //Skriver ut assets/jobtitle
 //        System.out.println("size på resultLinks: " + rawData.size());
         System.out.println("\n \n De matchade annonserna \n");
@@ -126,16 +128,6 @@ public class WebScraperMarx {
             System.out.print(tokenizedData.get(i).getJob());
             System.out.println(tokenizedData.get(i).getAssets());
         }
-
-        //Send the Arraylist of processed ads to the table
-/*
-        Table table = new Table();
-        for (TokenizedAdData ad: tokenizedData) {
-            ArrayList<String> array1 = ad.getJob();
-            ArrayList<String> array2 = ad.getAssets();
-            table.addJob(array1.toArray(new String[array1.size()]), array2.toArray(new String[array2.size()]) );
-        }
-*/
 
     }
 }

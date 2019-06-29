@@ -3,6 +3,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.*;
 
 
 public class Lexer {
@@ -13,11 +14,11 @@ public class Lexer {
      * @return
      */
     public static ArrayList<TokenizedAdData> parse (ArrayList<RawAdData> rawData) {
-        //Fetch Keywords
+        //Fetch Keywords, first index is string with title keywords, second is string with assets keywords
         String[] Keywords = getKeyWords();
         //Regenerate to List
-        List<String> titleKeyWords = Arrays.asList(Keywords[0].split(" "));
-        List<String> assetsKeyWords = Arrays.asList(Keywords[1].split(" "));
+        List<String> titleKeyWords = Arrays.asList(Keywords[0].split("\\s"));
+        List<String> assetsKeyWords = Arrays.asList(Keywords[1].split("\\s"));
         ArrayList<TokenizedAdData> result = new ArrayList<>(rawData.size());
        //For each ad in rawData, se what match the keywords
         for (RawAdData ad : rawData) {
@@ -25,20 +26,40 @@ public class Lexer {
             ArrayList<String> titleTokens = new ArrayList<>();
             ArrayList<String> assetTokens = new ArrayList<>();
 
-            //Go through the title of the ad to se if it match titleKeywords
-            String[] title = ad.getTitle().split(" ");
-            //Arrays.stream(title).forEach(titleToken ->{if (titleKeyWords.contains(titleToken)){titleTokens.add(titleToken);}});
-            for (String titleWord : title) {
-                if (titleKeyWords.contains(titleWord)){
-                    titleTokens.add(titleWord);
+            //Make a pattern from each titleKeyWord and see if it matches something in the title of the ad.
+            String[] title = ad.getTitle().split("[^A-Öa-ö0-9#]+");
+            //System.out.println(Arrays.toString(title));
+            for (String titleKeyWord : titleKeyWords) {
+                String regex = titleKeyWord;
+                Pattern pattern = Pattern.compile(regex);
+                //TODO: When implementing a better NLP, change this for-loop to a simpler, similar to the one when seaching for asset-words.
+                for (int i = 0; i < title.length; i++) {
+                    String temp = title[i];
+                    Matcher matcher = pattern.matcher(temp);
+                    //Special case for "deep-learning" and "machine-learning"
+                    if (matcher.matches() && (titleKeyWord.equals("deep")||titleKeyWord.equals("machine"))){
+                        System.out.println("deep");
+                        if (title[i+1].equals("learning")){
+                            titleTokens.add(titleKeyWord);
+                            i++;
+                        }
+                    }
+                    else if (matcher.matches()) {
+                        titleTokens.add(titleKeyWord);
+                    }
                 }
             }
-            //Go through the description to see if it matches assetsKeywords
-            String[] description = ad.getDiscription().split(" ");
-            //Arrays.stream(description).forEach(assetToken -> {if (assetsKeyWords.contains(assetToken)){assetTokens.add(assetToken);}});
-            for (String descWord : description) {
-                if (assetsKeyWords.contains(descWord)){
-                    assetTokens.add(descWord);
+            //Make a pattern from each assetKeyWord and see if it matches something in the ad.
+            String[] description = ad.getDiscription().split("[^A-Öa-ö0-9#]+");
+            //System.out.println(" " + Arrays.toString(description) + "\n");
+            for (String assetKeyWord : assetsKeyWords){
+                String regex = assetKeyWord;
+                Pattern pattern = Pattern.compile(regex);
+                for (String descWord : description) {
+                    Matcher matcher = pattern.matcher(descWord);
+                    if (matcher.matches()) {
+                        assetTokens.add(descWord);
+                    }
                 }
             }
             //Set tokens to TokenizedAdData-object
@@ -50,6 +71,7 @@ public class Lexer {
             }
 
         }
+        //System.out.println("");
         return result;
     }
 
