@@ -28,7 +28,6 @@ public class Lexer {
 
             //Make a pattern from each titleKeyWord and see if it matches something in the title of the ad.
             String[] title = ad.getTitle().split("[^A-Öa-ö0-9#+]+");
-            System.out.println(Arrays.toString(title));
             for (String titleKeyWord : titleKeyWords) {
                 if (titleKeyWord.contains("+")) {
                     titleKeyWord = titleKeyWord.replace("+", "\\+"); //To avoid unwanted effects of the regex
@@ -41,20 +40,20 @@ public class Lexer {
                     Matcher matcher = pattern.matcher(temp);
                     //Special case for "deep-learning" and "machine-learning"
                     if (matcher.matches() && (titleKeyWord.equals("deep")||titleKeyWord.equals("machine"))){
-                        System.out.println("deep");
                         if (title[i+1].equals("learning")){
-                            titleTokens.add(titleKeyWord);
+                            titleTokens.add(titleKeyWord + " learning");
                             i++;
+                            break;
                         }
                     }
                     else if (matcher.matches()) {
                         titleTokens.add(titleKeyWord);
+                        break;
                     }
                 }
             }
             //Make a pattern from each assetKeyWord and see if it matches something in the ad.
             String[] description = ad.getDiscription().split("[^A-Öa-ö0-9#+]+");
-            System.out.println(" " + Arrays.toString(description) + "\n");
             for (String assetKeyWord : assetsKeyWords){
                 if (assetKeyWord.contains("+")) {
                     assetKeyWord = assetKeyWord.replace("+", "\\+"); //To avoid unwanted effects of the regex
@@ -63,16 +62,14 @@ public class Lexer {
                 Pattern pattern = Pattern.compile(regex);
                 for (String descWord : description) {
                     Matcher matcher = pattern.matcher(descWord);
-                    if (assetKeyWord.equals("c++") && descWord.equals("c++")) {
-                        System.out.println("nu är det c++");
-                    }
                     if (matcher.matches()) {
                         assetTokens.add(descWord);
+                        break;
                     }
                 }
             }
             //Set tokens to TokenizedAdData-object
-          
+
             if (titleTokens.size() > 0 && assetTokens.size() > 0){
                 tokenizedAdData.setJob(titleTokens);
                 tokenizedAdData.setAssets(assetTokens);
@@ -80,7 +77,6 @@ public class Lexer {
             }
 
         }
-        System.out.println("");
         return result;
     }
 

@@ -12,7 +12,7 @@ public class WebScraperMarx {
 
     private static final String startURL = "https://se.indeed.com/";      //Startpage
     private static String job = "programmering";                          //Searchword for job
-    private static String place = "uppsala";                              //Searchword for place
+    private static String place = "alingsås";                              //Searchword for place
 
     public WebScraperMarx() {
     }
@@ -119,9 +119,7 @@ public class WebScraperMarx {
             System.out.println(rawData.get(i).getTitle());
         }
 
-        System.out.println("Done with gathering info, parsing left: ");
-        //Skriver ut assets/jobtitle
-//        System.out.println("size på resultLinks: " + rawData.size());
+        //Printing tokenized jobtitles and assets
         System.out.println("\n \n De matchade annonserna \n");
         ArrayList<TokenizedAdData> tokenizedData = Lexer.parse(rawData);
         for (int i = 0; i < tokenizedData.size(); i++) {
