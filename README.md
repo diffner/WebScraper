@@ -1,6 +1,5 @@
 
-# The Web-crawler/scraper Marx
-Project for DD1349 projinda19.
+# The Web-crawler/scraper
 
 ## Project description
 The project is a web-scraper application designed for a specific website [indeed.com](www.indeed.com). The application will automatically execute searches for jobs in the IT branch, and then it will scan each search result analyzing the content of these job announcements. The program will then map all relevant information that was extracted form the website and present them to the user.
